@@ -28,8 +28,10 @@ class ButtonView: UIView {
                 showInProgress(true)
             case .on:
                 showInProgress(false)
+                animateTo(.on)
             case .off:
                 showInProgress(false)
+                animateTo(.off)
             }
         }
     }
@@ -81,6 +83,14 @@ class ButtonView: UIView {
         return layer
     }()
     
+    private lazy var greenBackground: CAShapeLayer = {
+        let layer = CAShapeLayer()
+        layer.path = Utils.pathForCircleInRect(rect: buttonLayer.frame, scaled: CGFloat.innerCircleRatio)
+        layer.fillColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)
+        layer.mask = createBadgeMaskLayer()
+        return layer
+    }()
+    
     private func createBadgeMaskLayer() -> CAShapeLayer {
         let mask = CAShapeLayer()
         mask.path = UIBezierPath.badgePath.cgPath
@@ -108,6 +118,7 @@ class ButtonView: UIView {
     buttonLayer.addSublayer(innerCircle)
     
     layer.addSublayer(badgeLayer)
+    layer.addSublayer(greenBackground)
     layer.addSublayer(buttonLayer)
   }
     private func showInProgress(_ show: Bool = true) {
@@ -124,7 +135,36 @@ class ButtonView: UIView {
             inProgressLayer.removeAnimation(forKey: "inProgressAnimation")
         }
     }
+    
+    private func animateTo(_ state: State) {
+        let animationKey: String
+        let path: CGPath
+        
+        switch state {
+        case .on:
+            path = Utils.pathForCircleThatContains(rect: bounds)
+            animationKey = "onAnimation"
+            break
+        case .off:
+            path = Utils.pathForCircleInRect(rect: buttonLayer.frame, scaled: CGFloat.innerCircleRatio)
+            animationKey = "offAnimation"
+            break
+        default:
+            animationKey = ""
+            path = UIBezierPath().cgPath
+        }
+        let animation = CABasicAnimation(keyPath: "path")
+        animation.fromValue = greenBackground.path
+        animation.toValue = path
+        animation.duration = Double.animationDuration
+        animation.timingFunction = CAMediaTimingFunction(name: .easeOut)
+        
+        greenBackground.add(animation, forKey: animationKey)
+        greenBackground.path = path
+    }
 }
+
+
 
 let aspectRatio = UIBezierPath.badgePath.bounds.width / UIBezierPath.badgePath.bounds.height
 let button = ButtonView(frame: CGRect(x: 0, y: 0, width: 300, height: 300 / aspectRatio))
