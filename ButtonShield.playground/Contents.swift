@@ -49,9 +49,19 @@ class ButtonView: UIView {
         let layer = CAGradientLayer()
         layer.colors = [#colorLiteral(red: 1, green: 1, blue: 1, alpha: 1), #colorLiteral(red: 0.8039215803, green: 0.8039215803, blue: 0.8039215803, alpha: 1)].map { $0.cgColor }
         layer.frame = self.layer.bounds
-        
+        layer.mask = createBadgeMaskLayer()
         return layer
     }()
+    
+    private func createBadgeMaskLayer() -> CAShapeLayer {
+        let mask = CAShapeLayer()
+        mask.path = UIBezierPath.badgePath.cgPath
+        let scale = self.layer.bounds.width / UIBezierPath.badgePath.bounds.width
+        mask.transform = CATransform3DMakeScale(scale, scale, 1)
+        return mask
+    }
+    
+    
     
   override init(frame: CGRect) {
     super.init(frame: frame)
