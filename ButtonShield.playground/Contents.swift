@@ -37,6 +37,14 @@ class ButtonView: UIView {
         return layer
     }()
   
+    private lazy var outerCircle: CAShapeLayer = {
+        let layer = CAShapeLayer()
+        layer.path = Utils.pathForCircleInRect(rect: buttonLayer.bounds, scaled: CGFloat.outerCircleRatio)
+        layer.fillColor = #colorLiteral(red: 0.2549019754, green: 0.2745098174, blue: 0.3019607961, alpha: 1)
+        layer.opacity = 0.4
+        return layer
+    }()
+    
   override init(frame: CGRect) {
     super.init(frame: frame)
     configureLayers()
@@ -50,8 +58,8 @@ class ButtonView: UIView {
   private func configureLayers() {
     backgroundColor = #colorLiteral(red: 0.9600390625, green: 0.9600390625, blue: 0.9600390625, alpha: 1)
     buttonLayer.frame = bounds.largestContainedSquare.offsetBy(dx: 0, dy: -20)
+    buttonLayer.addSublayer(outerCircle)
     buttonLayer.addSublayer(innerCircle)
-    
     layer.addSublayer(buttonLayer)
   }
 }
@@ -63,4 +71,5 @@ let button = ButtonView(frame: CGRect(x: 0, y: 0, width: 300, height: 300 / aspe
 
 // Present the view controller in the Live View window
 PlaygroundPage.current.liveView = button
+
 
